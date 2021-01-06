@@ -141,7 +141,6 @@ const validateCard = () => {
         console.log("card is not valid");
         return false;
     }
-    
 } 
 
 // Note for TOM TOMORROW: Create one handler function for all 3!
@@ -169,6 +168,14 @@ form.addEventListener("submit", e => {
 
 // Notes: call prevent default on event IF one or more fields is invalid
 // Use helper functions - name function - return false
+
+/**
+ * NOTES FOR TOM - SO FAR
+ * Got to validating card. Tomorrow work on ONLY CALL PREVENT DEFAULT IF ONE OF THE FIELDS IS INVALID
+ * Then test the form to see if it sends
+ * 
+ */
+
 
     
 });

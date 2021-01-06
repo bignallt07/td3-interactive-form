@@ -1,5 +1,8 @@
 // DOM captures
+const form = document.querySelector("form");
+
 const nameField = document.querySelector("#name");
+const emailField = document.querySelector("#email");
 const jobRoleButton = document.querySelector("#other-job-role");
 const jobRoleOptions = document.querySelector("#title");
 
@@ -16,9 +19,12 @@ const paymentFieldset = document.querySelector(".payment-methods");
 const paymentTypes = paymentFieldset.children;
 const payWithDiv = document.querySelector("#payment");
 
+const creditCardInputs = document.querySelectorAll("#credit-card input");
+
 
 // Variables
 let totalCost = 0;
+let registeredActivities = 0;
 
 // 1. Set the name field to true
 nameField.focus();                      // Think about adding to line 2
@@ -64,9 +70,11 @@ activitiesDiv.addEventListener("change", e => {
     const clickedCost = clicked.getAttribute("data-cost");
     if (clicked.checked) {
         totalCost += +clickedCost;
+        registeredActivities++;
     }
     if (!clicked.checked) {
         totalCost -= clickedCost;
+        registeredActivities--;
     }
     activitiesTotalDisplay.innerHTML = `Total: $${totalCost}`;
 });
@@ -101,6 +109,69 @@ payWithDiv.addEventListener("change", e => {
 });
 
 // NOTE - Do we add this whole page to a set up function?
+
+// Form Validation
+// Helper Functions
+
+const validateName = () => {
+    const name = nameField.value;
+    const nameIsValid = /^[a-zA-Z]+ ?[a-zA-Z]*? ?[a-zA-Z]*? ?[a-zA-Z]*?$/.test(name);          // Tests between 1 and 4 names
+    return nameIsValid;
+}
+
+const validateEmailAddress = () => {
+    const email = emailField.value;
+    const emailIsValid = /^[^@]+@[^@.]+\.com$/i.test(email);                // Not accounting for other domains add [a-z]+ after
+    return emailIsValid;
+}
+
+const validateEnoughClasses = () => {
+    const registerationValidation = registeredActivities > 0;
+    return registerationValidation;
+}
+
+const validateCard = () => {
+    const cardNumberValid = /^\d{13,16}$/.test(creditCardInputs[0].value);
+    const zipCodeValid = /\d{3}$/.test(creditCardInputs[1].value);
+    const cvvValid = /^\d{3}$/.test(creditCardInputs[2].value);
+    if (cardNumberValid && zipCodeValid && cvvValid) {
+        console.log("Card is valid");
+        return true;
+    } else {
+        console.log("card is not valid");
+        return false;
+    }
+    
+} 
+
+// Note for TOM TOMORROW: Create one handler function for all 3!
+
+// Program the form element to listen for submit event 
+form.addEventListener("submit", e => {
+    e.preventDefault(); // MOVE AS NEEDED
+    
+    // Then form field should be validated, don't submit if unvalidated
+    
+    // name field - cannot be blank or empty
+    validateName();
+    // email must be an email, characters, followed by an @ then .com etc
+    validateEmailAddress();
+    // Register for activities must have at least one activity
+    validateEnoughClasses();
+    // IF - AND ONLY IF credit card is displayed
+    
+    if (!paymentTypes[2].hidden) {
+        validateCard();
+    } 
+    // Card number must have between 13-16 numbers with no dashes or spaces
+    // Zip code must contain 5 digits
+    // CVV must be 3 digits
+
+// Notes: call prevent default on event IF one or more fields is invalid
+// Use helper functions - name function - return false
+
+    
+});
 
 
 

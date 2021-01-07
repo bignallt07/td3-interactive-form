@@ -116,12 +116,25 @@ payWithDiv.addEventListener("change", e => {
 const validateName = () => {
     const name = nameField.value;
     const nameIsValid = /^[a-zA-Z]+ ?[a-zA-Z]*? ?[a-zA-Z]*? ?[a-zA-Z]*?$/.test(name);          // Tests between 1 and 4 names
+
+    if (nameIsValid) {
+        isValid(nameField);
+    } else {
+        isNotValid(nameField);
+    }
+
     return nameIsValid;
 }
 
 const validateEmailAddress = () => {
     const email = emailField.value;
     const emailIsValid = /^[^@]+@[^@.]+\.com$/i.test(email);                // Not accounting for other domains add [a-z]+ after
+
+    if (emailIsValid) {
+        isValid(emailField);
+    } else {
+        isNotValid(emailField);
+    }
     return emailIsValid;
 }
 
@@ -130,56 +143,97 @@ const validateEnoughClasses = () => {
     return registerationValidation;
 }
 
+// Go back and individualize these.
 const validateCard = () => {
     const cardNumberValid = /^\d{13,16}$/.test(creditCardInputs[0].value);
     const zipCodeValid = /\d{3}$/.test(creditCardInputs[1].value);
     const cvvValid = /^\d{3}$/.test(creditCardInputs[2].value);
     if (cardNumberValid && zipCodeValid && cvvValid) {
-        console.log("Card is valid");
+        isValid(creditCardInputs[0]);
+        isValid(creditCardInputs[1]);
+        isValid(creditCardInputs[2]);
         return true;
     } else {
-        console.log("card is not valid");
+        isNotValid(creditCardInputs[0]);
+        isNotValid(creditCardInputs[1]);
+        isNotValid(creditCardInputs[2]);
         return false;
     }
 } 
+
+function isValid(element) {
+    let parentOfElement = element.parentElement;
+    parentOfElement.classList.add("valid");
+    parentOfElement.classList.remove("not-valid");
+    parentOfElement.lastElementChild.style.display = "none";
+}
+
+function isNotValid(element) {
+    let parentOfElement = element.parentElement;
+    parentOfElement.classList.add("not-valid");
+    parentOfElement.classList.remove("valid");
+    parentOfElement.lastElementChild.style.display = "block";
+}
 
 // Note for TOM TOMORROW: Create one handler function for all 3!
 
 // Program the form element to listen for submit event 
 form.addEventListener("submit", e => {
-    e.preventDefault(); // MOVE AS NEEDED
-    
-    // Then form field should be validated, don't submit if unvalidated
-    
-    // name field - cannot be blank or empty
-    validateName();
-    // email must be an email, characters, followed by an @ then .com etc
-    validateEmailAddress();
-    // Register for activities must have at least one activity
-    validateEnoughClasses();
-    // IF - AND ONLY IF credit card is displayed
+    e.preventDefault();
+    const name = validateName();
+    const email = validateEmailAddress();
+    const classes = validateEnoughClasses();
+    let payment = false;
     
     if (!paymentTypes[2].hidden) {
-        validateCard();
-    } 
-    // Card number must have between 13-16 numbers with no dashes or spaces
-    // Zip code must contain 5 digits
-    // CVV must be 3 digits
-
-// Notes: call prevent default on event IF one or more fields is invalid
-// Use helper functions - name function - return false
-
-/**
- * NOTES FOR TOM - SO FAR
- * Got to validating card. Tomorrow work on ONLY CALL PREVENT DEFAULT IF ONE OF THE FIELDS IS INVALID
- * Then test the form to see if it sends
- * 
- */
-
-
+        payment = validateCard();
+    } else {
+        payment = true;
+    }
     
+    if (!name || !email || !classes || !payment) {
+        e.preventDefault();
+    }
 });
 
+
+// Accessibility
+
+// 1. Make the focud states of the activities more obvious
+
+// a. Program all of the activity CHECKBOX INPUT elements to listen for the FOCUS and BLUR events
+form.addEventListener("focus", e => {
+    const input = e.target.parentElement;
+    input.classList.add("focus");
+});
+
+form.addEventListener("blur", e => {
+    const input = e.target.parentElement;
+    input.classList.remove("focus");
+});
+
+// b. When focus event is detected, add .focus class to checkbox input parent element
+
+// c. When blur event is detected, remove the .focus class from the label element that possesses it. target element with class of .focus
+
+// 2. Make form validation errors obvious
+
+// a. when user tries to submit a form, if invalid...
+
+// i. add not valid class to parent of form field or section
+// ii. Remove .valid class of parent
+// iii. dispplay .hint element associcaited with the form field - last child of parent element
+
+// b. If form valid
+
+// i. Add .valid class to parent
+// ii. Remove .not-valid from parent
+// iii. Hide .hint element
+
+// Notes for accessibility
+//1. Error messages not visibile when form loads
+//2. Don't use alerts
+//3. If empty form submitted, all fields with indicators should be displayed
 
 
 

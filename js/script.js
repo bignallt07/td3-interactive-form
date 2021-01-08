@@ -113,6 +113,11 @@ payWithDiv.addEventListener("change", e => {
 // Form Validation
 // Helper Functions
 
+
+/**
+ * VALIDATION FUNCTIONS
+ */
+
 const validateName = () => {
     const name = nameField.value;
     const nameIsValid = /^[a-zA-Z]+ ?[a-zA-Z]*? ?[a-zA-Z]*? ?[a-zA-Z]*?$/.test(name);          // Tests between 1 and 4 names
@@ -143,24 +148,40 @@ const validateEnoughClasses = () => {
     return registerationValidation;
 }
 
-// Go back and individualize these.
-const validateCard = () => {
-    const cardNumberValid = /^\d{13,16}$/.test(creditCardInputs[0].value);
-    const zipCodeValid = /\d{3}$/.test(creditCardInputs[1].value);
-    const cvvValid = /^\d{3}$/.test(creditCardInputs[2].value);
-    if (cardNumberValid && zipCodeValid && cvvValid) {
-        isValid(creditCardInputs[0]);
-        isValid(creditCardInputs[1]);
-        isValid(creditCardInputs[2]);
-        return true;
+const validateCardNumber = () => {
+    const card = creditCardInputs[0]
+    const cardNumberValid = /^\d{13,16}$/.test(card.value);
+    if (cardNumberValid) {
+        isValid(card);
     } else {
-        isNotValid(creditCardInputs[0]);
-        isNotValid(creditCardInputs[1]);
-        isNotValid(creditCardInputs[2]);
-        return false;
+        isNotValid(card);
     }
-} 
+    return card;
+}
 
+const validateZipCode = () => {
+    const zip = creditCardInputs[1]
+    const zipCodeValid = /^[0-9][0-9][0-9][0-9][0-9]$/.test(zip.value);
+    if (zipCodeValid) {
+        isValid(zip);
+    } else {
+        isNotValid(zip);
+    }
+    return zip;
+}
+
+const validateCVV = () => {
+    const cvv = creditCardInputs[2]
+    const cvvCodeValid = /^[0-9][0-9][0-9]$/.test(cvv.value);
+    if (cvvCodeValid) {
+        isValid(cvv);
+    } else {
+        isNotValid(cvv);
+    }
+    return cvv;
+}
+
+// Go back and individualize these. 
 function isValid(element) {
     let parentOfElement = element.parentElement;
     parentOfElement.classList.add("valid");
@@ -183,12 +204,19 @@ form.addEventListener("submit", e => {
     const name = validateName();
     const email = validateEmailAddress();
     const classes = validateEnoughClasses();
+    const cardNumber = validateCardNumber();
+    const zip = validateZipCode();
+    const cvv = validateCVV();
     let payment = false;
     
     if (!paymentTypes[2].hidden) {
-        payment = validateCard();
+        if (cardNumber && zip && cvv) {
+            payment = true;
+        } else {
+            payment = false;
+        }
     } else {
-        payment = true;
+        payment = false;
     }
     
     if (!name || !email || !classes || !payment) {
@@ -199,18 +227,17 @@ form.addEventListener("submit", e => {
 
 // Accessibility
 
-// 1. Make the focud states of the activities more obvious
-
+// 1. Make the focud states of the activities more obvious 
+for (let i = 0; i < activitiesCheckboxes.length; i++) {
+    const checkbox = activitiesCheckboxes[i].parentElement;
+    checkbox.addEventListener("focus", e => {
+        checkbox.classList.add("focus");
+    }, true);
+    checkbox.addEventListener("blur", e => {
+        checkbox.classList.remove("focus");
+    }, true);
+}
 // a. Program all of the activity CHECKBOX INPUT elements to listen for the FOCUS and BLUR events
-form.addEventListener("focus", e => {
-    const input = e.target.parentElement;
-    input.classList.add("focus");
-});
-
-form.addEventListener("blur", e => {
-    const input = e.target.parentElement;
-    input.classList.remove("focus");
-});
 
 // b. When focus event is detected, add .focus class to checkbox input parent element
 

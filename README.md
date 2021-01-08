@@ -1,30 +1,32 @@
 # td3-interactive-form
- Interactive Form registration form
+
+description of project and explain what it is about
+
+# Motivation 
+
+A short description behind the motivation of the project, and why it exists
+
+# Build Status
+
+What place you are at?
+
+# Code Style
+
+Vanilla JavaScript
+
+# Tech Used
+
+# Features 
+
+What makes the project stand out
+
+Include extra credit
 
 
-// Validate Pass and Fail
+# Contribute
 
-function isValid(element) {
-    let parentOfElement = element.parentElement;
-    parentOfElement.classList.add("not-valid");
-    parentOfElement.classList.remove("valid");
-    parentOfElement.lastElementChild.style.display = "block";
-}
+Suggestions
 
-function isNotValid(element) {
-    let parentOfElement = element.parentElement;
-    parentOfElement.classList.add("valid");
-    parentOfElement.classList.remove("not-valid");
-    parentOfElement.lastElementChild.style.display = "none";
-}
+# Credits 
 
-
-form.addEventListener("focus", e => {
-    const input = e.target.parentElement;
-    input.classList.add("focus");
-}, true);
-
-form.addEventListener("blur", e => {
-    const input = e.target.parentElement;
-    input.classList.remove("focus");
-}, true);
+Curriculum at teamtreehouse.com

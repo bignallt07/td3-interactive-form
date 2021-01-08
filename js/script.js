@@ -85,12 +85,22 @@ const validateName = () => {
 const validateEmailAddress = () => {
     const email = emailField.value;
     const emailIsValid = /^[^@]+@[^@.]+\.com$/i.test(email);                // Not accounting for other domains add [a-z]+ after
-
-    if (emailIsValid) {
-        isValid(emailField);
-    } else {
-        isNotValid(emailField);
+    if (email.length > 2) {
+        if (emailIsValid) {
+            isValid(emailField);
+        } else {
+            isNotValid(emailField);
+        }
+        emailField.nextElementSibling.textContent = "Email address must be formatted correctly";
+    } else if (email.length <= 2) {
+        if (emailIsValid) {
+            isValid(emailField);
+        } else {
+            isNotValid(emailField);
+        }
+        emailField.nextElementSibling.textContent = "Please enter an email address"; 
     }
+
     return emailIsValid;
 }
 
@@ -105,7 +115,7 @@ const validateEnoughClasses = () => {
 }
 
 const validateCardNumber = () => {
-    const card = creditCardInputs[0]
+    const card = creditCardInputs[0];
     const cardNumberValid = /^\d{13,16}$/.test(card.value);
     if (cardNumberValid) {
         isValid(card);
@@ -116,7 +126,7 @@ const validateCardNumber = () => {
 }
 
 const validateZipCode = () => {
-    const zip = creditCardInputs[1]
+    const zip = creditCardInputs[1];
     const zipCodeValid = /^[0-9][0-9][0-9][0-9][0-9]$/.test(zip.value);
     if (zipCodeValid) {
         isValid(zip);
@@ -127,7 +137,7 @@ const validateZipCode = () => {
 }
 
 const validateCVV = () => {
-    const cvv = creditCardInputs[2]
+    const cvv = creditCardInputs[2];
     const cvvCodeValid = /^[0-9][0-9][0-9]$/.test(cvv.value);
     if (cvvCodeValid) {
         isValid(cvv);
@@ -142,7 +152,6 @@ function isValid(element) {
     let parentOfElement = element.parentElement;
     parentOfElement.classList.add("valid");
     parentOfElement.classList.remove("not-valid");
-    console.log(parentOfElement.lastElementChild);
     parentOfElement.lastElementChild.style.display = "none";
 }
 
@@ -186,16 +195,38 @@ designButton.addEventListener("change", (event) => {
 // Listens to activities to add and subtract cost of course
 activitiesDiv.addEventListener("change", e => {
     const clicked = e.target;
+    const clickedTime = clicked.getAttribute("data-day-and-time");
     const clickedCost = clicked.getAttribute("data-cost");
+
+    // Checks if checked and adds money, but also checks to see for conflicts
     if (clicked.checked) {
         totalCost += +clickedCost;
         registeredActivities++;
+        for (let i = 0; i < activitiesCheckboxes.length; i++) {
+            const conflict = activitiesCheckboxes[i].getAttribute("data-day-and-time");
+            if (clickedTime === conflict) {
+                activitiesCheckboxes[i].parentElement.classList.add("disabled");
+                activitiesCheckboxes[i].disabled = true;
+            }
+        }
+        clicked.parentElement.classList.remove("disabled"); // This ensures the clicked item isn't disabled
+        clicked.disabled = false;
     }
+
     if (!clicked.checked) {
         totalCost -= clickedCost;
         registeredActivities--;
+        for (let i = 0; i < activitiesCheckboxes.length; i++) {
+            const conflict = activitiesCheckboxes[i].getAttribute("data-day-and-time");
+            if (clickedTime === conflict) {
+                activitiesCheckboxes[i].parentElement.classList.remove("disabled");
+                activitiesCheckboxes[i].disabled = false;
+            } 
+        }
     }
+
     activitiesTotalDisplay.innerHTML = `Total: $${totalCost}`;
+     
 });
     
 
@@ -214,11 +245,17 @@ payWithDiv.addEventListener("change", e => {
     } 
 });
 
+// Real-time error messages - all but activities
+nameField.addEventListener("keyup", validateName);
+emailField.addEventListener("keyup", validateEmailAddress);
+creditCardInputs[0].addEventListener("keyup", validateCardNumber);
+creditCardInputs[1].addEventListener("keyup", validateZipCode);
+creditCardInputs[2].addEventListener("keyup", validateCVV);
+
 
 
 // Functions to call and procedure to follow when the form is submitted
 form.addEventListener("submit", e => {
-    e.preventDefault();                 // REMOVE BEFORE SUBMIT
     const name = validateName();
     const email = validateEmailAddress();
     const classes = validateEnoughClasses();

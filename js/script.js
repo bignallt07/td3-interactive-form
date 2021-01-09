@@ -1,7 +1,7 @@
-/**
+/************************
  * DOM Captures 
  * Note: These are in order of the HTML document flow
- */
+ ***********************/
 const form = document.querySelector("form");
 
 const nameField = document.querySelector("#name");
@@ -14,8 +14,6 @@ const designButton = document.querySelector("#design");
 const shirtColorsDiv = document.querySelector("#shirt-colors");
 const shirtColorsOptions = document.querySelectorAll("#shirt-colors option");
 
-const colors = document.querySelectorAll("#color option");
-
 const activitiesTotalDisplay = document.querySelector("#activities-cost");
 const activitiesDiv = document.querySelector("#activities");
 const activitiesBox = document.querySelector("#activities-box");
@@ -24,28 +22,26 @@ const activitiesCheckboxes = document.querySelectorAll("#activities input");
 const paymentFieldset = document.querySelector(".payment-methods");
 const paymentTypes = paymentFieldset.children;
 const payWithDiv = document.querySelector("#payment");
-const payOptions = payWithDiv.children;   // To set the load screen as payment option
 
 const creditCardInputs = document.querySelectorAll("#credit-card input");
 
-/**
+/************************
  * Global Variables
- */
+ ***********************/
 let totalCost = 0;
 let registeredActivities = 0;
 
 
-/**
- * On load page commands
- */
+/************************
+ * Page Set Up
+ ************************/
 nameField.focus();  
 jobRoleButton.style.display = "none";
 shirtColorsDiv.style.display = "none";
-payWithDiv.value = payWithDiv[1].value;               // Review this
+payWithDiv.value = payWithDiv[1].value;         
 
-// TO DO: Credit card show be loaded on page load - and that selection ("im going to pay with")
 
-// Remove none-credit card fields
+// Remove non-credit card options on page load
 for (let i = 0; i < paymentTypes.length; i++) {
     if (paymentTypes[i].id === "bitcoin" || paymentTypes[i].id === "paypal") {
         paymentTypes[i].hidden = true;
@@ -54,20 +50,29 @@ for (let i = 0; i < paymentTypes.length; i++) {
     }
 }
 
-// Make the focus states more obvious - Add comment about TRUE
+// Add focus class to checkboxes
+// Using the useCapture (true) parameter as "focus" and "blur" cannot bubble and we need to use directly on the checkbox
 for (let i = 0; i < activitiesCheckboxes.length; i++) {
     const checkbox = activitiesCheckboxes[i].parentElement;
-    checkbox.addEventListener("focus", e => {
+    checkbox.addEventListener("focus", () => {
         checkbox.classList.add("focus");
     }, true);
-    checkbox.addEventListener("blur", e => {
+    checkbox.addEventListener("blur", () => {
         checkbox.classList.remove("focus");
     }, true);
 }
 
+/************************
+ * Functions (For Validation) 
+ * Developer Note: Consider refactoring the following 6 (excluding validateEmailAddress) into one function.
+***********************/
 
 /**
- * Functions (For Validation) - Add function comments
+ * validateName Function, validateEnoughClasses, validateCardNumber, ValidateZipCode and ValidateCVV Functions
+ * Description: 1. Test a value against a regular expression for True or False value
+ *              2. Send input or checkbox field to function, depending on truthy value
+ * 
+ * @return {boolean} True or False
  */
 
 const validateName = () => {
@@ -79,30 +84,7 @@ const validateName = () => {
     } else {
         isNotValid(nameField);
     }
-
     return nameIsValid;
-}
-
-const validateEmailAddress = () => {
-    const email = emailField.value;
-    const emailIsValid = /^[^@]+@[^@.]+\.com$/i.test(email);                // Not accounting for other domains add [a-z]+ after
-    if (email.length > 2) {
-        if (emailIsValid) {
-            isValid(emailField);
-        } else {
-            isNotValid(emailField);
-        }
-        emailField.nextElementSibling.textContent = "Email address must be formatted correctly";
-    } else if (email.length <= 2) {
-        if (emailIsValid) {
-            isValid(emailField);
-        } else {
-            isNotValid(emailField);
-        }
-        emailField.nextElementSibling.textContent = "Please enter an email address"; 
-    }
-
-    return emailIsValid;
 }
 
 const validateEnoughClasses = () => {
@@ -148,7 +130,42 @@ const validateCVV = () => {
     return cvvCodeValid;
 }
 
-// Go back and individualize these. 
+/**
+ * validateEmail function
+ * Description: 1. Tests value, and sends field to a function
+ *              2. Displays error message depending upon length of field input
+ * 
+ * @return {boolean} True or False
+ */
+
+const validateEmailAddress = () => {
+    const email = emailField.value;
+    const emailIsValid = /^[^@]+@[^@.]+\.com$/i.test(email);                // Not accounting for other domains add [a-z]+ after
+    if (email.length > 2) {
+        if (emailIsValid) {
+            isValid(emailField);
+        } else {
+            isNotValid(emailField);
+        }
+        emailField.nextElementSibling.textContent = "Email address must be formatted correctly";
+    } else if (email.length <= 2) {
+        if (emailIsValid) {
+            isValid(emailField);
+        } else {
+            isNotValid(emailField);
+        }
+        emailField.nextElementSibling.textContent = "Please enter an email address"; 
+    }
+    return emailIsValid;
+}
+
+/**
+ * isValid and isNotValid functions
+ * Description: Adds and removes class and changes display of elements
+ * 
+ * @param {string} - DOM element
+ * @return - Changes state of DOM element
+ */
 function isValid(element) {
     let parentOfElement = element.parentElement;
     parentOfElement.classList.add("valid");
@@ -164,12 +181,11 @@ function isNotValid(element) {
 }
 
 
- /**
-  * Event Listeners
-  */
+/************************
+* Event Listeners
+* **********************/
 
-
-// To display text field if "Other" job role is selected
+// Add/Remove Job "Other" field
 jobRoleOptions.addEventListener('change', (event) => {
     if (event.target.value === "other") {
         jobRoleButton.style.display = "block";
@@ -178,7 +194,7 @@ jobRoleOptions.addEventListener('change', (event) => {
     }
 });
  
-// Listen to the design button being clicked, display correct options
+// Change display color display options from design choice field
 designButton.addEventListener("change", (event) => {
     const designOption = event.target.value;
     for (let i = 0; i < shirtColorsOptions.length; i++) {
@@ -194,14 +210,13 @@ designButton.addEventListener("change", (event) => {
     
 });
 
-
-// Listens to activities to add and subtract cost of course
+// Changes to activies field. Adds and subtracts total cost, and checks for conflicts of time
 activitiesDiv.addEventListener("change", e => {
     const clicked = e.target;
     const clickedTime = clicked.getAttribute("data-day-and-time");
     const clickedCost = clicked.getAttribute("data-cost");
 
-    // Checks if checked and adds money, but also checks to see for conflicts
+    // If checked, see if there are conflict of time
     if (clicked.checked) {
         totalCost += +clickedCost;
         registeredActivities++;
@@ -227,13 +242,10 @@ activitiesDiv.addEventListener("change", e => {
             } 
         }
     }
-
     activitiesTotalDisplay.innerHTML = `Total: $${totalCost}`;
-     
 });
     
-
-// Listen to change of payment type, then add remove payment sections
+// Updates payment method depending on field choice
 payWithDiv.addEventListener("change", e => {
     const typeOfPayment = e.target.value;
     for (let i = 0; i < paymentTypes.length; i++) {
@@ -248,16 +260,20 @@ payWithDiv.addEventListener("change", e => {
     } 
 });
 
-// Real-time error messages - all but activities
+// Real-time error message event listeners
 nameField.addEventListener("keyup", validateName);
 emailField.addEventListener("keyup", validateEmailAddress);
 creditCardInputs[0].addEventListener("keyup", validateCardNumber);
 creditCardInputs[1].addEventListener("keyup", validateZipCode);
 creditCardInputs[2].addEventListener("keyup", validateCVV);
 
-
-
-// Functions to call and procedure to follow when the form is submitted
+/**
+ * Submit Event Listener
+ * Description: On submit of form:
+ *              1. Run tests which return a truthy value
+ *              2. Check payment option status - run code for each outcome
+ *              3. Submit for if all values are TRUE
+ */
 form.addEventListener("submit", e => {
     const name = validateName();
     const email = validateEmailAddress();
@@ -267,7 +283,7 @@ form.addEventListener("submit", e => {
     const cvv = validateCVV();
     let payment = false;
 
-    // Check to see if credit card is selected, if so, test card details. Otherwise payment is true
+    // Check to see if credit card is selected
     if (payWithDiv.value === paymentTypes[2].id) {
         if (cardNumber && zip && cvv) {
             payment = true;
@@ -282,8 +298,3 @@ form.addEventListener("submit", e => {
         e.preventDefault();
     }
 });
-
-// Notes for the end
-// Clean up code
-// Look at consts and lets
-// Be consistent with e and event

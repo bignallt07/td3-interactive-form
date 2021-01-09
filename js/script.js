@@ -14,6 +14,8 @@ const designButton = document.querySelector("#design");
 const shirtColorsDiv = document.querySelector("#shirt-colors");
 const shirtColorsOptions = document.querySelectorAll("#shirt-colors option");
 
+const colors = document.querySelectorAll("#color option");
+
 const activitiesTotalDisplay = document.querySelector("#activities-cost");
 const activitiesDiv = document.querySelector("#activities");
 const activitiesBox = document.querySelector("#activities-box");
@@ -25,7 +27,6 @@ const payWithDiv = document.querySelector("#payment");
 const payOptions = payWithDiv.children;   // To set the load screen as payment option
 
 const creditCardInputs = document.querySelectorAll("#credit-card input");
-
 
 /**
  * Global Variables
@@ -40,7 +41,7 @@ let registeredActivities = 0;
 nameField.focus();  
 jobRoleButton.style.display = "none";
 shirtColorsDiv.style.display = "none";
-payWithDiv.value = "credit-card";               // Review this
+payWithDiv.value = payWithDiv[1].value;               // Review this
 
 // TO DO: Credit card show be loaded on page load - and that selection ("im going to pay with")
 
@@ -122,7 +123,7 @@ const validateCardNumber = () => {
     } else {
         isNotValid(card);
     }
-    return card;
+    return cardNumberValid;
 }
 
 const validateZipCode = () => {
@@ -133,7 +134,7 @@ const validateZipCode = () => {
     } else {
         isNotValid(zip);
     }
-    return zip;
+    return zipCodeValid;
 }
 
 const validateCVV = () => {
@@ -144,7 +145,7 @@ const validateCVV = () => {
     } else {
         isNotValid(cvv);
     }
-    return cvv;
+    return cvvCodeValid;
 }
 
 // Go back and individualize these. 
@@ -188,7 +189,9 @@ designButton.addEventListener("change", (event) => {
             shirtColorsOptions[i].hidden = false;
         }
     }
-    shirtColorsDiv.style.display = "block"; 
+    shirtColorsDiv.style.display = "block";
+    shirtColorsOptions[0].parentElement.value = shirtColorsOptions[0].value;
+    
 });
 
 
@@ -263,15 +266,16 @@ form.addEventListener("submit", e => {
     const zip = validateZipCode();
     const cvv = validateCVV();
     let payment = false;
-    
-    if (!paymentTypes[2].hidden) {
+
+    // Check to see if credit card is selected, if so, test card details. Otherwise payment is true
+    if (payWithDiv.value === paymentTypes[2].id) {
         if (cardNumber && zip && cvv) {
             payment = true;
         } else {
             payment = false;
-        }
+        }       
     } else {
-        payment = false;
+        payment = true;
     }
     
     if (!name || !email || !classes || !payment) {

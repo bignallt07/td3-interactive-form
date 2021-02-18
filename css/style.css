@@ -607,7 +607,7 @@ button:hover {
   .expiration-box {
     position: absolute;
     right: 10px;
-    top: 57px;
+    top: 30px;
     display: flex;
     flex-flow: row wrap;
     justify-content: space-between;
